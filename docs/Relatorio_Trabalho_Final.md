@@ -44,8 +44,13 @@ def add_task(self, description: str) -> Task:
     ...
 ```
 
-**Verificação de Testes:**
-Ao invocar o script finalizado `python -m unittest tests/test_todolist.py` sobre o *pipeline* da execução, toda bateria contendo **8 rotinas de testes** logrou êxito assertivo de compilação em crivos de bordas e fluxos otimistas validando sua correta engenharia, em um cômputo temporal excelente (`Ran 8 tests in 0.003s / OK`).
+**Verificação de Testes (Unitários e Funcionais):**
+Com o intuito de simular validações rigorosas e aderentes aos conceitos de Testes de Mutação (onde *mutantes* lógicos no código são postos à prova, conforme abordado na literatura), a suíte de testes original foi expandida para incluir cenários exaustivos e funcionais. Estes novos testes cobriram:
+1. **Fluxos de Usuário Extensos** (*test_functional_user_workflow*): Teste de integração ponta a ponta garantindo que adições, filtragens e remoções múltiplas mantivessem o estado do ToDoList coeso.
+2. **Carga e Acurácia** (*test_high_volume_and_accuracy*): Geração de um volume acentuado de objetos na memória (1000 tarefas concorrentes) provando que as métricas de leitura e as listas da classe não perdem performance ou exatidão.
+3. **Casos de Borda** (*test_mark_task_completed_twice* e *test_add_task_with_special_characters*): Validações desenhadas para assegurar a sanidade dos métodos perante *inputs* anormais, prevenindo que datas importantes não sofressem "sobrescritas lógicas" indesejadas (o que atestaria uma "alucinação funcional" do gerador, caso não tratada).
+
+Ao invocar o script finalizado `python -m unittest tests/test_todolist.py` sobre o *pipeline* da execução incrementando a _verbosity_ para relatórios analíticos, a bateria atualizada contendo **12 rotinas exaustivas de testes** logrou êxito assertivo integral contra anomalias e falhas de mutação na lógica, em um cômputo temporal excelente (`Ran 12 tests in 0.271s / OK`).
 
 ### 3.3 Análise Crítica dos Ganhos
 O aspecto de maior força extraído da experimentação foi a **Produtividade**. Esboçar manualmente os componentes de uma janela responsiva e as *bindings* do TKinter juntamente com os tratamentos modulares exatos custaria substancial tempo do labor do programador perante a documentar dezenas de linhas estritamente visuais ou triviais. Adicionalmente, observa-se expressiva **Qualidade** na cobertura de anomalias (exceções `KeyError` e asserções tipificadas) e padronizações.

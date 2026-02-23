@@ -78,6 +78,72 @@ class TestToDoList(unittest.TestCase):
         self.assertEqual(pending[0].task_id, t2.task_id)
         self.assertEqual(pending[1].task_id, t3.task_id)
 
+    def test_add_task_with_special_characters(self):
+        """[Functional] Verifica adição de tarefas com caracteres especiais e longas."""
+        desc = "Task@! #123 com chars $ % & * () - e texto longo " * 5
+        task = self.todo_list.add_task(desc)
+        self.assertEqual(task.description, desc.strip())
+
+    def test_mark_task_completed_twice(self):
+        """[Edge Case] Tentar marcar como concluída uma tarefa que já está concluída."""
+        task = self.todo_list.add_task("Estudar LLMs")
+        self.todo_list.mark_task_completed(task.task_id)
+        
+        # Guardar tempo da primeira conclusão
+        first_completed_at = task.completed_at
+        
+        # Tentar concluir de novo
+        self.todo_list.mark_task_completed(task.task_id)
+        
+        # A data de conclusão não deve mudar e o status continua "Concluída"
+        self.assertEqual(task.status, "Concluída")
+        self.assertEqual(task.completed_at, first_completed_at)
+
+    def test_high_volume_and_accuracy(self):
+        """[Edge Case] Teste de carga: criar 1000 tarefas sucessivas e verificar integridade."""
+        for i in range(1000):
+            self.todo_list.add_task(f"Task de carga {i}")
+            
+        all_tasks = self.todo_list.list_all_tasks()
+        self.assertEqual(len(all_tasks), 1000)
+        
+        # Concluir os múltiplos de 10
+        for i in range(0, 1000, 10):
+            self.todo_list.mark_task_completed(all_tasks[i].task_id)
+            
+        completed = self.todo_list.list_completed_tasks()
+        self.assertEqual(len(completed), 100)
+        self.assertEqual(len(self.todo_list.list_pending_tasks()), 900)
+
+    def test_functional_user_workflow(self):
+        """[Functional] Simula um fluxo de usuário longo e complexo na plataforma."""
+        # 1. Usuário entra e cria 3 tarefas
+        t1 = self.todo_list.add_task("Comprar leite")
+        t2 = self.todo_list.add_task("Aprender testes de Mutação com IA")
+        t3 = self.todo_list.add_task("Escrever prompt exaustivo do Copilot")
+        
+        # 2. Conclui as duas primeiras
+        self.todo_list.mark_task_completed(t1.task_id)
+        self.todo_list.mark_task_completed(t2.task_id)
+        
+        # 3. Lista verifica se tem 2 concluidas e 1 pendente
+        self.assertEqual(len(self.todo_list.list_completed_tasks()), 2)
+        self.assertEqual(len(self.todo_list.list_pending_tasks()), 1)
+        
+        # 4. Remove a tarefa que estava concluida (t1) e a pendente (t3)
+        self.todo_list.remove_task(t1.task_id)
+        self.todo_list.remove_task(t3.task_id)
+        
+        # 5. Validação final: deve sobrar apenas a t2 (Concluída)
+        final_tasks = self.todo_list.list_all_tasks()
+        self.assertEqual(len(final_tasks), 1)
+        self.assertEqual(final_tasks[0].task_id, t2.task_id)
+        self.assertEqual(final_tasks[0].status, "Concluída")
+
 
 if __name__ == '__main__':
-    unittest.main()
+    print("=" * 70)
+    print("Executando Suíte de Testes: ToDoList App")
+    print("=" * 70)
+    # verbosity=2 gera um relatório detalhado com o nome de cada teste e seu status
+    unittest.main(verbosity=2)
